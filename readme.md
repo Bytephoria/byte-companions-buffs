@@ -29,6 +29,16 @@ Each companion can have its own independent set of buffs, all configured through
 
 ---
 
+<p align="center">
+  <a href="https://discord.com/invite/3K9yrZQRmS">
+    <img src="https://imgur.com/DvyC4jL.png" width="600" alt="ByteChat preview">
+  </a>
+  <br/>
+  <i>If you need help, join the Discord server.</i>
+</p>
+
+---
+
 ## Features
 
 - Buffs activate and deactivate instantly based on companion equip/unequip events.
