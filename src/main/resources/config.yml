@@ -1,0 +1,153 @@
+# ===================================================================
+#  CompanionBuffs – Configuration
+# ===================================================================
+#  Grants buffs to the player while a companion is equipped.
+#  Each companion entry maps to a companion ID defined in
+#  ByteCompanions, and can have its own independent buff setup.
+# ===================================================================
+
+# -----------------------------------------------------------
+# Operation types applied to numeric buff values.
+# -----------------------------------------------------------
+#
+#  SUM         — adds a flat amount to the base value.
+#                  base=100, value=20  → 120
+#
+#  MULTIPLY    — multiplies the base value by a factor.
+#                  base=100, value=1.5 → 150
+#
+#  ADD_PERCENT — adds a percentage on top of the base value.
+#                  base=100, value=25  → 125
+#
+# If a specific experience buff is enabled (experience-mob,
+# experience-block, etc.), the general "experience" fallback
+# will not apply to avoid double-boosting.
+#
+# -----------------------------------------------------------
+# Cooldowns are stored in memory and cleared when the player
+# disconnects — they do not persist across sessions.
+# Recommended for short durations only (e.g. 20–200 ticks).
+# Use 0 to disable.
+# -----------------------------------------------------------
+
+companions:
+
+  bee:
+    vanilla:
+
+      # Applies to any experience the player picks up.
+      # Acts as a general boost, or as a fallback when no specific
+      # experience buff below is enabled.
+      experience:
+        enabled: false
+        operation: MULTIPLY   # SUM | MULTIPLY | ADD_PERCENT
+        value: 1.5
+        cooldown: 0           # In ticks. 0 = disabled.
+        feedback:
+          action-bar:
+            enabled: true
+            message: "<yellow>Experience boost: <white>{value} <gray>({operation})"
+          sound:
+            enabled: true
+            key: "minecraft:entity.player.levelup"
+
+      # Applies when a mob dies and drops experience.
+      experience-mob:
+        enabled: false
+        operation: MULTIPLY
+        value: 1.0
+        cooldown: 0
+        feedback:
+          action-bar:
+            enabled: true
+            message: "<yellow>Mob exp boost: <white>{value} <gray>({operation})"
+          sound:
+            enabled: true
+            key: "minecraft:entity.player.levelup"
+
+      # Applies when breaking a block that drops experience
+      # (ores, sculk, etc.). Does not trigger on regular blocks.
+      experience-block:
+        enabled: false
+        operation: MULTIPLY
+        value: 1.0
+        cooldown: 0
+        feedback:
+          action-bar:
+            enabled: true
+            message: "<yellow>Block exp boost: <white>{value} <gray>({operation})"
+          sound:
+            enabled: true
+            key: "minecraft:entity.player.levelup"
+
+      # Applies when retrieving smelted items from a furnace.
+      experience-furnace:
+        enabled: false
+        operation: MULTIPLY
+        value: 1.0
+        cooldown: 0
+        feedback:
+          action-bar:
+            enabled: true
+            message: "<yellow>Furnace exp boost: <white>{value} <gray>({operation})"
+          sound:
+            enabled: true
+            key: "minecraft:entity.player.levelup"
+
+      # Applies when catching something while fishing.
+      experience-fishing:
+        enabled: false
+        operation: MULTIPLY
+        value: 1.0
+        cooldown: 0
+        feedback:
+          action-bar:
+            enabled: true
+            message: "<yellow>Fishing exp boost: <white>{value} <gray>({operation})"
+          sound:
+            enabled: true
+            key: "minecraft:entity.player.levelup"
+
+      # Applies to the items dropped when a mob dies.
+      # Use apply-to to restrict to hostile or passive mobs only.
+      mob-loot:
+        enabled: false
+        operation: MULTIPLY
+        value: 1.25
+        cooldown: 0
+        apply-to: ALL         # ALL | HOSTILE | PASSIVE
+        feedback:
+          action-bar:
+            enabled: true
+            message: "<yellow>Loot boost: <white>{value} <gray>({operation})"
+          sound:
+            enabled: true
+            key: "minecraft:entity.experience_orb.pickup"
+
+      # Applies to the items dropped when breaking a block.
+      block-drops:
+        enabled: false
+        operation: MULTIPLY
+        value: 1.0
+        cooldown: 0
+        feedback:
+          action-bar:
+            enabled: true
+            message: "<yellow>Block drop boost: <white>{value} <gray>({operation})"
+          sound:
+            enabled: true
+            key: "minecraft:block.note_block.pling"
+
+      # Applies to the item caught while fishing.
+      fishing-loot:
+        enabled: false
+        operation: MULTIPLY
+        value: 1.0
+        cooldown: 0
+        feedback:
+          action-bar:
+            enabled: true
+            message: "<yellow>Fishing loot boost: <white>{value} <gray>({operation})"
+          sound:
+            enabled: true
+            key: "minecraft:entity.fishing_bobber.splash"
