@@ -3,7 +3,7 @@ import net.minecrell.pluginyml.paper.PaperPluginDescription
 plugins {
     `java-library`
     id("de.eldoria.plugin-yml.paper") version "0.9.0"
-    id("com.gradleup.shadow") version("9.4.1")
+    id("com.gradleup.shadow") version("9.6.1")
 }
 
 repositories {
