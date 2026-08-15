@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    compileOnly("com.github.Bytephoria:byte-companions-api:2.3.0")
+    compileOnly("com.github.Bytephoria:byte-companions-api:v3.0.0")
     compileOnly("org.spongepowered:configurate-yaml:4.2.0")
 }
 
