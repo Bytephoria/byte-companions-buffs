@@ -1,5 +1,5 @@
 # ===================================================================
-#  CompanionBuffs – Configuration
+#  ByteCompanionsBuffs – Configuration
 # ===================================================================
 #  Grants buffs to the player while a companion is equipped.
 #  Each companion entry maps to a companion ID defined in
@@ -30,9 +30,35 @@
 # Use 0 to disable.
 # -----------------------------------------------------------
 
+# -----------------------------------------------------------
+# Multiple companions can be equipped by the same player at once.
+# When two or more equipped companions have the same buff type
+# enabled (e.g. two companions both granting mob-loot), only ONE
+# wins and is applied — the rest are ignored for that buff type.
+#
+# The winner is decided by priority:
+#
+#  - "priority" on a specific buff entry (below) always wins if set.
+#  - if a buff entry does NOT set "priority", it falls back to the
+#    companion's "default-priority".
+#  - higher number = higher priority.
+#  - on a tie, the first companion declared in this file wins, and
+#    a warning is logged so it can be fixed.
+#
+# This lets most companions be configured with a single
+# "default-priority", while still allowing a specific buff to
+# override it when you need a companion to win on just one type
+# (e.g. a fishing-focused companion that should win fishing-loot
+# even if another companion has a higher default-priority).
+# -----------------------------------------------------------
+
 companions:
 
   bee:
+    # Base priority used by any buff below that doesn't set its own
+    # "priority". Only matters if another equipped companion also
+    # has the same buff type enabled.
+    default-priority: 0
     vanilla:
 
       # Applies to any experience the player picks up.
@@ -43,6 +69,7 @@ companions:
         operation: MULTIPLY   # SUM | MULTIPLY | ADD_PERCENT
         value: 1.5
         cooldown: 0           # In ticks. 0 = disabled.
+        # priority: 0         # Optional. Overrides default-priority for this buff only.
         feedback:
           action-bar:
             enabled: true
@@ -57,6 +84,7 @@ companions:
         operation: MULTIPLY
         value: 1.0
         cooldown: 0
+        # priority: 0         # Optional. Overrides default-priority for this buff only.
         feedback:
           action-bar:
             enabled: true
@@ -72,6 +100,7 @@ companions:
         operation: MULTIPLY
         value: 1.0
         cooldown: 0
+        # priority: 0         # Optional. Overrides default-priority for this buff only.
         feedback:
           action-bar:
             enabled: true
@@ -86,6 +115,7 @@ companions:
         operation: MULTIPLY
         value: 1.0
         cooldown: 0
+        # priority: 0         # Optional. Overrides default-priority for this buff only.
         feedback:
           action-bar:
             enabled: true
@@ -100,6 +130,7 @@ companions:
         operation: MULTIPLY
         value: 1.0
         cooldown: 0
+        # priority: 0         # Optional. Overrides default-priority for this buff only.
         feedback:
           action-bar:
             enabled: true
@@ -116,6 +147,7 @@ companions:
         value: 1.25
         cooldown: 0
         apply-to: ALL         # ALL | HOSTILE | PASSIVE
+        # priority: 0         # Optional. Overrides default-priority for this buff only.
         feedback:
           action-bar:
             enabled: true
@@ -130,6 +162,7 @@ companions:
         operation: MULTIPLY
         value: 1.0
         cooldown: 0
+        # priority: 0         # Optional. Overrides default-priority for this buff only.
         feedback:
           action-bar:
             enabled: true
@@ -144,6 +177,7 @@ companions:
         operation: MULTIPLY
         value: 1.0
         cooldown: 0
+        # priority: 0         # Optional. Overrides default-priority for this buff only.
         feedback:
           action-bar:
             enabled: true

@@ -1,66 +1,59 @@
 package team.bytephoria.bytecompanionsbuffs.listener;
 
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
-import team.bytephoria.bytecompanions.api.access.ByteCompanions;
-import team.bytephoria.bytecompanionsbuffs.util.BuffKey;
 import team.bytephoria.bytecompanionsbuffs.PaperPlugin;
-import team.bytephoria.bytecompanionsbuffs.configuration.Companions;
-import team.bytephoria.bytecompanionsbuffs.configuration.Vanilla;
-import team.bytephoria.bytecompanionsbuffs.configuration.buff.Buff;
-import team.bytephoria.bytecompanionsbuffs.manager.CooldownManager;
+import team.bytephoria.bytecompanionsbuffs.util.BuffKey;
+
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Set;
 
 public final class ExperienceListener implements Listener {
 
-    private final PaperPlugin paperPlugin;
-    private final CooldownManager cooldownManager;
+    private static final Map<ExperienceOrb.SpawnReason, BuffKey> REASON_TO_SPECIFIC_TYPE = new EnumMap<>(ExperienceOrb.SpawnReason.class) {{
+        put(ExperienceOrb.SpawnReason.BLOCK_BREAK, BuffKey.EXPERIENCE_BLOCK);
+        put(ExperienceOrb.SpawnReason.FURNACE, BuffKey.EXPERIENCE_FURNACE);
+        put(ExperienceOrb.SpawnReason.FISHING, BuffKey.EXPERIENCE_FISHING);
+        put(ExperienceOrb.SpawnReason.ENTITY_DEATH, BuffKey.EXPERIENCE_MOB);
+    }};
 
-    public ExperienceListener(
-            final @NotNull PaperPlugin paperPlugin,
-            final @NotNull CooldownManager cooldownManager
-    ) {
+    private static final Set<ExperienceOrb.SpawnReason> EXCLUDED_REASONS = EnumSet.of(
+            ExperienceOrb.SpawnReason.PLAYER_DEATH,
+            ExperienceOrb.SpawnReason.EXP_BOTTLE
+    );
+
+    private final PaperPlugin paperPlugin;
+    public ExperienceListener(final @NotNull PaperPlugin paperPlugin) {
         this.paperPlugin = paperPlugin;
-        this.cooldownManager = cooldownManager;
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerPickupExperienceEvent(final @NotNull PlayerPickupExperienceEvent experienceEvent) {
         final Player player = experienceEvent.getPlayer();
+        final ExperienceOrb experienceOrb = experienceEvent.getExperienceOrb();
+        final ExperienceOrb.SpawnReason spawnReason = experienceOrb.getSpawnReason();
 
-        ByteCompanions.getAPI().getCompanion(player.getUniqueId()).ifPresent(companion -> {
-            final Companions companions = this.paperPlugin.companions(companion.type().id());
-            if (companions == null) {
-                return;
-            }
+        if (EXCLUDED_REASONS.contains(spawnReason)) {
+            return;
+        }
 
-            final Vanilla vanilla = companions.vanilla();
-            final Buff buff = vanilla.experience();
+        final BuffKey specificKey = REASON_TO_SPECIFIC_TYPE.get(spawnReason);
+        if (specificKey != null && this.paperPlugin.buffService().isActive(player, specificKey)) {
+            return;
+        }
 
-            if (!buff.enabled()) {
-                return;
-            }
-
-            final boolean anySpecificEnabled =
-                    vanilla.experienceMob().enabled() ||
-                            vanilla.experienceBlock().enabled() ||
-                            vanilla.experienceFurnace().enabled() ||
-                            vanilla.experienceFishing().enabled();
-
-            if (anySpecificEnabled) {
-                return;
-            }
-
-            if (!this.cooldownManager.tryUse(player, BuffKey.EXPERIENCE, buff.cooldown())) {
-                return;
-            }
-
-            final int base = experienceEvent.getExperienceOrb().getExperience();
-            experienceEvent.getExperienceOrb().setExperience(buff.operation().apply(base, buff.value()));
-            this.paperPlugin.notifyPlayer(player, buff);
-        });
+        this.paperPlugin.buffService().resolve(player, BuffKey.EXPERIENCE)
+                .ifPresent(buff -> {
+                    final int base = experienceOrb.getExperience();
+                    experienceOrb.setExperience(buff.operation().apply(base, buff.value()));
+                    this.paperPlugin.notifyPlayer(player, buff);
+                });
     }
 
 }

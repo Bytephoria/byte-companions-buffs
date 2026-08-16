@@ -1,15 +1,19 @@
 package team.bytephoria.bytecompanionsbuffs.configuration.buff;
 
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
-import team.bytephoria.bytecompanionsbuffs.util.Operation;
 import team.bytephoria.bytecompanionsbuffs.configuration.feedback.FeedBack;
+import team.bytephoria.bytecompanionsbuffs.util.Operation;
 
 @ConfigSerializable
 public class Buff {
 
     @Setting("enabled")
     private boolean enabled = true;
+
+    @Setting("priority")
+    private Integer priority = null;
 
     @Setting("operation")
     private Operation operation = Operation.SUM;
@@ -25,6 +29,10 @@ public class Buff {
 
     public boolean enabled() {
         return this.enabled;
+    }
+
+    public @Nullable Integer rawPriority() {
+        return this.priority;
     }
 
     public Operation operation() {

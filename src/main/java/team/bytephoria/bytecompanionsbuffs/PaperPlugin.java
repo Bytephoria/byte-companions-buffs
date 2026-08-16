@@ -11,12 +11,16 @@ import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
+import team.bytephoria.bytecompanionsbuffs.cache.PlayerBuffCache;
 import team.bytephoria.bytecompanionsbuffs.command.BuffCommand;
 import team.bytephoria.bytecompanionsbuffs.configuration.Companions;
 import team.bytephoria.bytecompanionsbuffs.configuration.Configuration;
 import team.bytephoria.bytecompanionsbuffs.configuration.buff.Buff;
 import team.bytephoria.bytecompanionsbuffs.configuration.feedback.FeedBack;
+import team.bytephoria.bytecompanionsbuffs.listener.BuffCacheListener;
 import team.bytephoria.bytecompanionsbuffs.manager.CooldownManager;
+import team.bytephoria.bytecompanionsbuffs.resolver.CompanionBuffResolver;
+import team.bytephoria.bytecompanionsbuffs.service.BuffService;
 import team.bytephoria.bytecompanionsbuffs.util.ComponentUtil;
 
 import java.io.File;
@@ -24,14 +28,29 @@ import java.io.File;
 public final class PaperPlugin extends JavaPlugin {
 
     private Configuration configuration;
+
+    private PlayerBuffCache playerBuffCache;
     private CooldownManager cooldownManager;
+
+    private BuffService buffService;
+    private CompanionBuffResolver companionBuffResolver;
+
     private ListenerRegistry listenerRegistry;
 
     @Override
     public void onEnable() {
         this.configuration = this.loadConfiguration();
         this.cooldownManager = new CooldownManager();
-        this.listenerRegistry = new ListenerRegistry(this, this.configuration, this.cooldownManager);
+
+        this.playerBuffCache = new PlayerBuffCache();
+        this.buffService = new BuffService(this.playerBuffCache, this.cooldownManager);
+        this.companionBuffResolver = new CompanionBuffResolver(this);
+
+        this.listenerRegistry = new ListenerRegistry(this, this.configuration);
+        this.getServer().getPluginManager().registerEvents(
+                new BuffCacheListener(this.playerBuffCache, this.companionBuffResolver), this
+        );
+
         this.listenerRegistry.registerAll();
 
         this.getServer().getCommandMap().register("bytecompanionsbuffs", new BuffCommand(this));
@@ -44,6 +63,15 @@ public final class PaperPlugin extends JavaPlugin {
         this.getServer().getCommandMap().getKnownCommands().remove("bcb");
 
         this.listenerRegistry = null;
+        this.companionBuffResolver = null;
+        this.buffService = null;
+
+        if (this.playerBuffCache != null) {
+            this.playerBuffCache.clear();
+        }
+
+        this.playerBuffCache = null;
+
         this.cooldownManager = null;
         this.configuration = null;
     }
@@ -67,6 +95,18 @@ public final class PaperPlugin extends JavaPlugin {
         if (feedBack.sound().enabled()) {
             player.playSound(feedBack.sound().adventureSound());
         }
+    }
+
+    public PlayerBuffCache playerBuffCache() {
+        return this.playerBuffCache;
+    }
+
+    public BuffService buffService() {
+        return this.buffService;
+    }
+
+    public CooldownManager cooldownManager() {
+        return this.cooldownManager;
     }
 
     public Companions companions(final @NotNull String companionId) {
